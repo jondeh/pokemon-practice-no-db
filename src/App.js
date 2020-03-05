@@ -1,26 +1,71 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {Component} from 'react'
+import Header from './Components/Header'
+import Finder from './Components/Finder'
+import Pokedex from './Components/Pokedex'
 import './App.css';
+import axios from 'axios'
 
-function App() {
-  return (
+class App extends Component {
+  constructor(){
+    super()
+    this.state = {
+      caughtPokemon: []
+    }
+  }
+
+  componentDidMount = () => {
+    axios.get('/api/pokemon')
+    .then(res => {
+      this.setState({
+        caughtPokemon: res.data
+      })
+    })
+    .catch(err => console.log(err))
+  }
+ 
+
+  catchPokemon = (pokemon) => {
+    axios.post('/api/pokemon', {pokemon})
+    .then(res => {
+      this.setState({
+        caughtPokemon: res.data
+      })
+    })
+  }
+
+  saveName = (id, newName) => {
+    axios.put(`/api/pokemon/${id}`, {name: newName})
+      .then(res => {
+        this.setState({
+          caughtPokemon: res.data
+        })
+      })
+  }
+
+  releasePokemon = (id) => {
+    axios.delete(`/api/pokemon/${id}`)
+    .then(res => {
+      this.setState({
+        caughtPokemon: res.data
+      })
+    })
+  }
+ 
+  render(){
+    return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Header />
+      <Finder 
+          catchPokemon={this.catchPokemon}
+      />
+      <Pokedex 
+          caughtPokemon={this.state.caughtPokemon}
+          saveName={this.saveName}
+          releasePokemon={this.releasePokemon}
+      />
     </div>
-  );
+    )
+  }
 }
 
 export default App;
